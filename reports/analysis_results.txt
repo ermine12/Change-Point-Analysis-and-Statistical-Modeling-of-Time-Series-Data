@@ -1,0 +1,12 @@
+Time Series Analysis Results
+============================
+
+Data Range: 1987-05-20 00:00:00 to 2022-11-14 00:00:00
+
+ADF Test Results:
+Price Level p-value: 0.28927350489340287
+Log Returns p-value: 2.4985801611428892e-29
+
+Observations:
+- Price level is non-stationary.
+- Log returns are stationary.
