@@ -1,11 +1,41 @@
-pandas
-numpy
-matplotlib
-seaborn
-yfinance
-statsmodels
-scipy
-jupyterlab
-arviz
-pymc>=4.0
-plotly
+# Core Data Science Libraries
+pandas==2.0.3
+numpy==1.24.3
+matplotlib==3.7.2
+seaborn==0.12.2
+scipy==1.11.1
+
+# Finance & Data
+yfinance==0.2.28
+
+# Statistical Modeling
+statsmodels==0.14.0
+arviz==0.15.1
+pymc>=5.0.0
+
+# Visualization
+plotly==5.16.1
+
+# Web Framework
+Flask==2.3.3
+flask-cors==4.0.0
+
+# Interactive Dashboard
+streamlit==1.26.0
+
+# Scientific Computing
+jupyterlab==4.0.5
+
+# Testing
+pytest==7.4.0
+pytest-cov==4.1.0
+pytest-mock==3.11.1
+
+# Code Quality
+black==23.7.0
+flake8==6.1.0
+mypy==1.5.1
+
+# Development Tools
+ipython==8.14.0
+

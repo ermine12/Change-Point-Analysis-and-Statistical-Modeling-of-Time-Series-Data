@@ -1,0 +1,46 @@
+{
+  "change_points": [
+    "2020-04-23 00:00:00"
+  ],
+  "convergence": {
+    "r_hat": {
+      "mu_1": 1.1,
+      "mu_2": 1.31,
+      "tau": 2.15
+    },
+    "ess_bulk": {
+      "mu_1": 14.0,
+      "mu_2": 5.0,
+      "tau": 3.0
+    },
+    "ess_tail": {
+      "mu_1": 385.0,
+      "mu_2": 65.0,
+      "tau": 3.0
+    },
+    "converged": false,
+    "sufficient_ess": false
+  },
+  "regime_parameters": {
+    "mu_1": {
+      "mean": -0.036092987907940105,
+      "std": 0.03116582599223101,
+      "credible_interval_95": [
+        -0.0997559589071962,
+        0.02152830038266951
+      ]
+    },
+    "mu_2": {
+      "mean": 0.019226742168585723,
+      "std": 0.024274859669200052,
+      "credible_interval_95": [
+        -0.0312035713295427,
+        0.05635010996880813
+      ]
+    }
+  },
+  "impact": {
+    "mean_shift_percentage": 5.531973007652582,
+    "direction": "increase"
+  }
+}
