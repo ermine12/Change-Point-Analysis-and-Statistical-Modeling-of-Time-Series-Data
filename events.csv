@@ -3,14 +3,14 @@ date,event,category,description
 1979-11-01,Iranian Revolution,Geopolitical,Major disruption to Iranian oil exports and market uncertainty
 1990-08-02,Gulf War (Iraq invades Kuwait),Conflict,Large supply disruption and price spike
 1998-10-01,Asian Financial Crisis,Economy,Global demand slowdown affecting oil prices
-2003-03-20,Iraq War begins,Conflict,Supply risk and geopolitical premium in prices
-2005-08-29,Hurricane Katrina,Natural Disaster,Disruption to Gulf of Mexico production and refining
-2008-09-15,Global Financial Crisis,Economy,Severe demand collapse and price crash
-2011-02-01,Arab Spring begins,Geopolitical,Regional instability and production concerns
-2014-06-01,US Shale / Oil Price Collapse,Market,Rapid increase in US shale output and OPEC pricing decision
-2016-11-30,OPEC Agreement 2016,OPEC,OPEC+ agreed production cuts to stabilize prices
-2020-03-08,Russia–Saudi Price War,Market,Breakdown of OPEC+ talks leading to price collapse
-2020-03-11,COVID-19 pandemic declared,Public Health,Global demand shock due to lockdowns and travel halt
-2020-04-20,WTI Negative Price Event,Market,Extreme demand collapse and storage constraints (not Brent but market-wide signal)
-2022-02-24,Russia invades Ukraine,Conflict,Sanctions, supply concerns, and price volatility
-2022-10-05,OPEC+ Output Cut,OPEC,Surprise production cuts announced to support prices
+2003-03-20,Iraq War begins,Conflict,"Supply risk and geopolitical premium in prices"
+2005-08-29,Hurricane Katrina,Natural Disaster,"Disruption to Gulf of Mexico production and refining"
+2008-09-15,Global Financial Crisis,Economy,"Severe demand collapse and price crash"
+2011-02-01,Arab Spring begins,Geopolitical,"Regional instability and production concerns"
+2014-06-01,US Shale / Oil Price Collapse,Market,"Rapid increase in US shale output and OPEC pricing decision"
+2016-11-30,OPEC Agreement 2016,OPEC,"OPEC+ agreed production cuts to stabilize prices"
+2020-03-08,Russia–Saudi Price War,Market,"Breakdown of OPEC+ talks leading to price collapse"
+2020-03-11,COVID-19 pandemic declared,Public Health,"Global demand shock due to lockdowns and travel halt"
+2020-04-20,WTI Negative Price Event,Market,"Extreme demand collapse and storage constraints (not Brent but market-wide signal)"
+2022-02-24,Russia invades Ukraine,Conflict,"Sanctions, supply concerns, and price volatility"
+2022-10-05,OPEC+ Output Cut,OPEC,"Surprise production cuts announced to support prices"

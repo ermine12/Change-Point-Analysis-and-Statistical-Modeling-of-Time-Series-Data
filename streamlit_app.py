@@ -69,6 +69,9 @@ def load_events():
     except FileNotFoundError:
         st.warning(f"Events file not found: {EVENTS_PATH}")
         return pd.DataFrame()
+    except Exception as e:
+        st.error(f"Error loading events: {str(e)}")
+        return pd.DataFrame()
 
 
 @st.cache_data
@@ -100,13 +103,22 @@ def create_price_chart(df, events, change_points=None, date_range=None):
     # Add change points if available
     if change_points:
         for cp in change_points:
-            cp_date = pd.to_datetime(cp['date'])
+            # Handle both string and dict formats
+            if isinstance(cp, str):
+                cp_date = pd.to_datetime(cp)
+                annotation = "Change Point"
+            elif isinstance(cp, dict):
+                cp_date = pd.to_datetime(cp.get('date'))
+                annotation = "Change Point"
+            else:
+                continue
+                
             if date_range is None or (date_range[0] <= cp_date <= date_range[1]):
                 fig.add_vline(
                     x=cp_date,
                     line_dash="dash",
                     line_color="red",
-                    annotation_text="Change Point",
+                    annotation_text=annotation,
                     annotation_position="top"
                 )
     
@@ -286,8 +298,8 @@ def show_overview(df, events, model_results):
     
     # Quick chart
     st.markdown("### Price History Overview")
-    fig = create_price_chart(df, events, 
-                            model_results['change_points'] if model_results else None)
+    change_points = model_results.get('change_points') if model_results else None
+    fig = create_price_chart(df, events, change_points)
     st.plotly_chart(fig, use_container_width=True)
 
 
@@ -316,8 +328,9 @@ def show_price_analysis(df, events, model_results):
     
     # Price chart
     st.markdown("### Price Chart with Events")
+    change_points = model_results.get('change_points') if model_results else None
     fig_price = create_price_chart(df, events, 
-                                   model_results['change_points'] if model_results else None,
+                                   change_points,
                                    date_range)
     st.plotly_chart(fig_price, use_container_width=True)
     
@@ -362,14 +375,23 @@ def show_change_points(df, events, model_results):
     
     # Change points table
     if change_points:
-        cp_df = pd.DataFrame([
-            {
-                'Date': cp['date'],
-                'Index': cp.get('index', 'N/A'),
-                'Credible Interval': f"{cp.get('credible_interval', ['N/A', 'N/A'])[0]} to {cp.get('credible_interval', ['N/A', 'N/A'])[1]}"
-            }
-            for cp in change_points
-        ])
+        # Handle both list of strings (simple) and list of dicts (rich)
+        formatted_cps = []
+        for cp in change_points:
+            if isinstance(cp, str):
+                formatted_cps.append({
+                    'Date': cp,
+                    'Index': 'N/A',
+                    'Credible Interval': 'N/A'
+                })
+            elif isinstance(cp, dict):
+                formatted_cps.append({
+                    'Date': cp.get('date', 'N/A'),
+                    'Index': cp.get('index', 'N/A'),
+                    'Credible Interval': f"{cp.get('credible_interval', ['N/A', 'N/A'])[0]} to {cp.get('credible_interval', ['N/A', 'N/A'])[1]}"
+                })
+        
+        cp_df = pd.DataFrame(formatted_cps)
         st.dataframe(cp_df, use_container_width=True)
     
     # Regime parameters
@@ -500,10 +522,21 @@ def show_business_impact(df, model_results):
         st.markdown("### Quantified Regime Shifts")
         
         regimes = model_results['regime_parameters']
-        if len(regimes) >= 2:
-            for i in range(len(regimes) - 1):
-                r1 = regimes[i]
-                r2 = regimes[i + 1]
+        
+        # Normalize regimes to list format
+        regime_list = []
+        if isinstance(regimes, list):
+            regime_list = regimes
+        elif isinstance(regimes, dict):
+            # Sort keys to ensure order (mu_1, mu_2, ...)
+            sorted_keys = sorted(regimes.keys())
+            for k in sorted_keys:
+                regime_list.append(regimes[k])
+                
+        if len(regime_list) >= 2:
+            for i in range(len(regime_list) - 1):
+                r1 = regime_list[i]
+                r2 = regime_list[i + 1]
                 
                 mean_shift = (r2['mean'] - r1['mean']) * 252 * 100  # Annualized %
                 vol_shift = (r2['std'] - r1['std']) * np.sqrt(252) * 100  # Annualized %

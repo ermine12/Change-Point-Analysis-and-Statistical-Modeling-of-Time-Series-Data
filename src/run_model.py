@@ -64,11 +64,16 @@ def run_single_change_point_analysis():
     print(f"  - Post-change mean: {summary['regime_parameters']['mu_2']['mean']:.6f}")
     print(f"  - Impact: {summary['impact']['mean_shift_percentage']:.2f}% ({summary['impact']['direction']})")
     
-    # Save results
+    # Save results to multiple paths for robustness
     with open(output_path, 'w') as f:
         json.dump(summary, f, indent=2)
     
-    print(f"\nResults saved to: {output_path}")
+    # Save a canonical copy for the dashboard
+    canonical_path = os.path.join(base_path, 'data', 'model_results.json')
+    with open(canonical_path, 'w') as f:
+        json.dump(summary, f, indent=2)
+    
+    print(f"\nResults saved to: {output_path} and {canonical_path}")
     print("="*80 + "\n")
     
     return model, summary
