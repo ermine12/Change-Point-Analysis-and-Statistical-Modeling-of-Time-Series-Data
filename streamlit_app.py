@@ -115,7 +115,7 @@ def create_price_chart(df, events, change_points=None, date_range=None):
                 
             if date_range is None or (date_range[0] <= cp_date <= date_range[1]):
                 fig.add_vline(
-                    x=cp_date,
+                    x=cp_date.timestamp() * 1000,
                     line_dash="dash",
                     line_color="red",
                     annotation_text=annotation,
@@ -127,7 +127,7 @@ def create_price_chart(df, events, change_points=None, date_range=None):
         for _, event in events.iterrows():
             if date_range is None or (date_range[0] <= event['Date'] <= date_range[1]):
                 fig.add_vline(
-                    x=event['Date'],
+                    x=event['Date'].timestamp() * 1000,
                     line_dash="dot",
                     line_color="gray",
                     opacity=0.5,
