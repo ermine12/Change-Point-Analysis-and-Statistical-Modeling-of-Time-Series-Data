@@ -20,9 +20,9 @@ class TestBayesianModelInitialization:
         """Test model initializes correctly with valid price series."""
         model = BayesianChangePointModel(sample_price_series, use_log_returns=True)
         
-        assert model.original_series is not None
+        assert model.data is not None
         assert model.use_log_returns is True
-        assert len(model.series) == len(sample_price_series) - 1  # log returns are one shorter
+        assert len(model.returns) == len(sample_price_series) - 1  # log returns are one shorter
         
     @pytest.mark.unit
     def test_initialization_with_insufficient_data(self):
@@ -37,13 +37,13 @@ class TestBayesianModelInitialization:
             BayesianChangePointModel(short_series)
     
     @pytest.mark.unit
-    def test_initialization_without_datetime_index(self):
-        """Test model works even without DatetimeIndex."""
+    def test_initialization_without_datetime_index_raises_error(self):
+        """Test model raises error without DatetimeIndex."""
         # Series with default integer index
         series = pd.Series(np.random.randn(50))
-        model = BayesianChangePointModel(series, use_log_returns=False)
         
-        assert model.series is not None
+        with pytest.raises(TypeError, match="must have a DatetimeIndex"):
+            BayesianChangePointModel(series, use_log_returns=False)
         
 
 class TestLogReturnTransformation:
@@ -59,7 +59,7 @@ class TestLogReturnTransformation:
         
         # Compare (allowing for small floating point differences)
         np.testing.assert_array_almost_equal(
-            model.series.values,
+            model.returns.values,
             expected_returns.values,
             decimal=10
         )
@@ -70,10 +70,10 @@ class TestLogReturnTransformation:
         model = BayesianChangePointModel(sample_price_series, use_log_returns=False)
         
         # Should be same length (no transformation)
-        assert len(model.series) == len(sample_price_series)
+        assert len(model.returns) == len(sample_price_series)
         
         # Values should be identical
-        pd.testing.assert_series_equal(model.series, sample_price_series)
+        pd.testing.assert_series_equal(model.returns, sample_price_series)
 
 
 class TestModelFitting:
@@ -96,7 +96,7 @@ class TestModelFitting:
         """Test that calling summary before fit raises appropriate error."""
         model = BayesianChangePointModel(sample_price_series)
         
-        with pytest.raises(ValueError, match="must fit"):
+        with pytest.raises(ValueError, match="not been fitted"):
             model.summary()
     
     @pytest.mark.unit
@@ -104,7 +104,7 @@ class TestModelFitting:
         """Test that calling predict before fit raises appropriate error."""
         model = BayesianChangePointModel(sample_price_series)
         
-        with pytest.raises(ValueError, match="must fit"):
+        with pytest.raises(ValueError, match="not been fitted"):
             model.predict()
 
 
@@ -166,7 +166,7 @@ class TestEdgeCases:
         try:
             model = BayesianChangePointModel(series_with_nan, use_log_returns=False)
             # If it accepts, series should have NaN removed or handled
-            assert not model.series.isna().any()
+            assert not model.returns.isna().any()
         except ValueError as e:
             # If it rejects, error message should mention NaN
             assert "NaN" in str(e) or "missing" in str(e).lower()
