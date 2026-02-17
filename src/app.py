@@ -8,7 +8,8 @@ app = Flask(__name__)
 CORS(app)
 
 # Paths
-BASE_DIR = r'c:\Users\ELITEBOOK\Documents\Projects\AI_engineering\Change Point Analysis and Statistical Modeling of Time Series Data'
+# Paths
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_PATH = os.path.join(BASE_DIR, 'data', 'BrentOilPrices.csv')
 EVENTS_PATH = os.path.join(BASE_DIR, 'events.csv')
 RESULTS_PATH = os.path.join(BASE_DIR, 'data', 'model_results.json')

@@ -64,6 +64,8 @@ def load_events():
     """Load geopolitical and economic events."""
     try:
         events = pd.read_csv(EVENTS_PATH)
+        # Normalize column names
+        events = events.rename(columns={'date': 'Date', 'event': 'Event', 'category': 'Category', 'description': 'Description'})
         events['Date'] = pd.to_datetime(events['Date'])
         return events
     except FileNotFoundError:
