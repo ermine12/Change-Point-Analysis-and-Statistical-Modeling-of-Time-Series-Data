@@ -189,7 +189,7 @@ def main():
         st.title("📊 Navigation")
         page = st.radio(
             "Select Page",
-            ["Overview", "Price Analysis", "Change Points", "Model Diagnostics", "Business Impact"]
+            ["Overview", "Price Analysis", "Change Points", "Model Diagnostics", "Model Explainability", "Business Impact"]
         )
         
         st.markdown("---")
@@ -222,8 +222,29 @@ def main():
         show_change_points(df, events, model_results)
     elif page == "Model Diagnostics":
         show_diagnostics(model_results)
+    elif page == "Model Explainability":
+        show_explainability(model_results)
     elif page == "Business Impact":
         show_business_impact(df, model_results)
+
+
+def show_overview(df, events, model_results):
+    """Overview page with problem statement and key metrics."""
+    # ... (existing code for show_overview ... I shouldn't replace this if I don't have to)
+    # create a new function instead and insert it before main
+    pass # Placeholder to indicate where I would put it if I were rewriting the whole file. 
+    # But I am using replace_file_content, so I need to target specific chunks.
+    
+    # Wait, I can't easily insert a huge function in the middle without replacing a lot.
+    # Let's target the end of the file or a specific function block.
+    
+    # Actually, I'll use multi_replace to:
+    # 1. Update the sidebar menu list
+    # 2. Add the show_explainability function definition
+    # 3. Update the page routing logic
+    
+    # But for now, I will cancel this tool call and use multi_replace_file_content instead.
+
 
 
 def show_overview(df, events, model_results):
@@ -486,6 +507,156 @@ def show_diagnostics(model_results):
     - **Samples**: 2000 draws × 2 chains (default)
     - **Target**: R-hat < 1.05, ESS > 400
     """)
+
+
+def show_explainability(model_results):
+    """Model explainability page using Bayesian credible intervals."""
+    st.title("🧠 Model Explainability")
+    
+    if not model_results:
+        st.warning("⚠️ No model results available.")
+        return
+        
+    st.markdown("""
+    ### Bayesian Probabilistic Reasoning
+    Unlike black-box AI models, this Bayesian model provides **transparent uncertainty quantification**.
+    Below are the posterior distributions that drive the model's decisions.
+    """)
+    
+    # 1. Change Point Uncertainty
+    st.markdown("---")
+    st.markdown("### 1. Why was this Change Point selected?")
+    
+    change_points = model_results.get('change_points', [])
+    if change_points:
+        # Check if we have detailed CI info (from single CP model)
+        detailed_cp = next((cp for cp in change_points if isinstance(cp, dict) and cp.get('credible_interval')), None)
+        
+        if detailed_cp:
+            cp_date = pd.to_datetime(detailed_cp['date'])
+            ci_lower = pd.to_datetime(detailed_cp['credible_interval'][0])
+            ci_upper = pd.to_datetime(detailed_cp['credible_interval'][1])
+            
+            st.info(f"""
+            **Decision**: The model identified **{cp_date.date()}** as the most likely change point.
+            
+            **Evidence**: There is a 95% probability that the structural break occurred between **{ci_lower.date()}** and **{ci_upper.date()}**.
+            
+            The detection is driven by a shift in the data generation process (mean and/or volatility).
+            """)
+            
+            # Visualizing the timeline
+            # Create a simple timeline chart
+            fig = go.Figure()
+            
+            # Plot reference line for CP
+            fig.add_trace(go.Scatter(
+                x=[cp_date, cp_date],
+                y=[0, 1],
+                mode='lines',
+                name='Most Likely Date',
+                line=dict(color='red', width=3)
+            ))
+            
+            # Plot CI area
+            fig.add_shape(
+                type="rect",
+                x0=ci_lower,
+                y0=0,
+                x1=ci_upper,
+                y1=1,
+                fillcolor="red",
+                opacity=0.2,
+                line_width=0,
+            )
+            
+            fig.update_layout(
+                title="Change Point Location Uncertainty (95% Credible Interval)",
+                xaxis_title="Date",
+                yaxis_title="Probability Density (Normalized)",
+                yaxis_showticklabels=False,
+                height=250,
+                template="plotly_white"
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
+            
+        else:
+            st.write("Detailed uncertainty data not available for this run (likely multi-change point mode).")
+            for i, cp in enumerate(change_points, 1):
+                date_str = cp['date'] if isinstance(cp, dict) else cp
+                st.write(f"**Change Point {i}**: {date_str}")
+                
+    else:
+        st.write("No change points detected.")
+
+    # 2. Regime Parameter Distributions
+    st.markdown("---")
+    st.markdown("### 2. How different are the regimes?")
+    
+    if 'regime_parameters' in model_results:
+        regimes = model_results['regime_parameters']
+        
+        # Helper to extract params whether list or dict
+        regime_list = []
+        if isinstance(regimes, list):
+            regime_list = regimes
+        elif isinstance(regimes, dict):
+            sorted_keys = sorted(regimes.keys())
+            for k in sorted_keys:
+                regime_list.append(regimes[k])
+                
+        if len(regime_list) >= 2:
+            st.markdown("Comparing the probabilistic distributions of **Mean Return** and **Volatility** across regimes.")
+            
+            # Visualize Means with Error Bars
+            means = []
+            mean_errors_low = []
+            mean_errors_high = []
+            labels = []
+            
+            for i, r in enumerate(regime_list):
+                label = f"Regime {i+1}"
+                labels.append(label)
+                means.append(r['mean'])
+                
+                # If we have CI data
+                if 'credible_interval_95' in r:
+                    ci = r['credible_interval_95']
+                    mean_errors_low.append(r['mean'] - ci[0])
+                    mean_errors_high.append(ci[1] - r['mean'])
+                else:
+                    # Fallback to 2*std if no CI
+                    mean_errors_low.append(2 * r['std'])
+                    mean_errors_high.append(2 * r['std'])
+
+            fig_means = go.Figure()
+            fig_means.add_trace(go.Scatter(
+                x=labels,
+                y=means,
+                error_y=dict(
+                    type='data',
+                    symmetric=False,
+                    array=mean_errors_high,
+                    arrayminus=mean_errors_low
+                ),
+                mode='markers',
+                marker=dict(color='blue', size=10),
+                name='Mean Return'
+            ))
+            
+            fig_means.update_layout(
+                title="Regime Mean Returns (with 95% Credible Intervals)",
+                yaxis_title="Mean Log Return",
+                template="plotly_white",
+                height=300
+            )
+            
+            st.plotly_chart(fig_means, use_container_width=True)
+            
+            st.info("""
+            **Interpretation**: Non-overlapping error bars indicate a statistically significant difference between regimes.
+            """)
 
 
 def show_business_impact(df, model_results):

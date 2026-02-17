@@ -293,7 +293,7 @@ class BayesianChangePointModel:
         
         Returns:
             Dictionary containing:
-            - change_points: List of detected change point dates
+            - change_points: List of dictionaries with date, index, and credible_interval
             - regime_parameters: Mean and std for each regime
             - convergence: Convergence diagnostics
             - impact: Quantified impact of change points
@@ -301,8 +301,39 @@ class BayesianChangePointModel:
         if self.trace is None and not self.change_points:
             raise ValueError("Model has not been fitted yet")
         
+        # Format change points with uncertainty if available
+        formatted_cps = []
+        if self.trace is not None:
+            # Single change point model with trace
+            tau_samples = self.trace.posterior['tau'].values.flatten()
+            
+            # Calculate 95% CI
+            tau_lower = int(np.percentile(tau_samples, 2.5))
+            tau_upper = int(np.percentile(tau_samples, 97.5))
+            
+            # Map to dates
+            dates = self.returns.index
+            cp_date = self.change_points[0] # We know it's single
+            
+            formatted_cps.append({
+                'date': str(cp_date.date()),
+                'index': int(np.argwhere(dates == cp_date)[0][0]),
+                'credible_interval': [
+                    str(dates[tau_lower].date()), 
+                    str(dates[tau_upper].date())
+                ]
+            })
+        else:
+            # Multi-change point or loaded without trace
+            for cp in self.change_points:
+                formatted_cps.append({
+                    'date': str(cp.date()) if isinstance(cp, pd.Timestamp) else str(cp),
+                    'index': None,
+                    'credible_interval': None
+                })
+
         summary_dict = {
-            'change_points': [str(cp) for cp in self.change_points],
+            'change_points': formatted_cps,
             'convergence': self.convergence_diagnostics
         }
         
