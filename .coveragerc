@@ -1,0 +1,22 @@
+[run]
+branch = True
+# Exclude scripts/entrypoints and interactive app files from coverage
+omit =
+    */src/validate_model.py
+    */src/run_model.py
+    */src/analyze_properties.py
+    */src/app.py
+
+[report]
+# Common lines to ignore in coverage calculations
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.
+    raise NotImplementedError
+    pass
+    def __repr__
+    def __str__
+
+# Show missing lines per-file in terminal report
+show_missing = True
+precision = 2
