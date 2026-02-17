@@ -160,7 +160,11 @@ class TestEdgeCases:
     @pytest.mark.unit  
     def test_series_with_nan_values(self):
         """Test handling of NaN values in series."""
-        series_with_nan = pd.Series([10, 20, np.nan, 30, 40, 50, 60, 70, 80, 90] * 5)
+        values = [10, 20, np.nan, 30, 40, 50, 60, 70, 80, 90] * 5
+        series_with_nan = pd.Series(
+            values, 
+            index=pd.date_range('2020-01-01', periods=len(values), freq='D')
+        )
         
         # Should either handle gracefully or raise informative error
         try:

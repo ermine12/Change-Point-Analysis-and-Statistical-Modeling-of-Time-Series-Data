@@ -56,7 +56,10 @@ class BayesianChangePointModel:
             # Compute log returns: r_t = log(P_t / P_{t-1})
             self.returns = np.log(self.data / self.data.shift(1)).dropna()
         else:
-            self.returns = self.data
+            self.returns = self.data.dropna()
+            
+        if len(self.returns) < 10:
+             raise ValueError("Series too short for change-point modeling (min 10 obs)")
         
         self.model: Optional[pm.Model] = None
         self.trace: Optional[az.InferenceData] = None
@@ -86,8 +89,7 @@ class BayesianChangePointModel:
         y = self.returns.values
         T = len(y)
         
-        if T < 10:
-            raise ValueError("Series too short for change-point modeling (min 10 obs)")
+        # Check moved to __init__
         
         with pm.Model() as model:
             # Priors for change point location
@@ -275,6 +277,8 @@ class BayesianChangePointModel:
         
         if not self.convergence_diagnostics['sufficient_ess']:
             warnings.warn("Low effective sample size (ESS < 400 detected)")
+            
+        return self.convergence_diagnostics['converged']
     
     def _extract_change_points_single(self):
         """Extract change point from single-point model."""
