@@ -33,7 +33,7 @@ class TestBayesianModelInitialization:
             index=pd.date_range('2020-01-01', periods=5, freq='D')
         )
         
-        with pytest.raises(ValueError, match="at least 20 observations"):
+        with pytest.raises(ValueError, match="min 10 obs"):
             BayesianChangePointModel(short_series)
     
     @pytest.mark.unit
